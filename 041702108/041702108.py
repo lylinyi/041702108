@@ -43,15 +43,16 @@ class Address:
         self.get_phone_num()
         self.get_name()
 
-        self.get_province()
-        self.get_city()
-        self.get_county()
-        self.get_town()
-        self.get_road()
-        self.get_house_num()
-        self.get_detail()
         if self.level == 3:
             self.call_api()
+        else:
+            self.get_province()
+            self.get_city()
+            self.get_county()
+            self.get_town()
+            self.get_road()
+            self.get_house_num()
+            self.get_detail()
 
     def cut_string(self, full_addr, tmp_addr):
         i = 0
@@ -66,8 +67,9 @@ class Address:
         for province in self.json_file:
             if province.find(sub_addr) != -1:
                 self.addr.append(province)
-
+                # 找到全称匹配
                 if self.tmpAddr.find(province) == 0:
+                    # 处理直辖市
                     if sub_addr in municipality:
 
                         if self.tmpAddr[2] == '市':
@@ -75,6 +77,7 @@ class Address:
 
                         self.addr.append(self.addr[0] + "市")
                     self.tmpAddr = self.tmpAddr.replace(province, '', 1)
+                # 缺少'省'
                 else:
                     self.tmpAddr = self.tmpAddr.replace(province[:-1], '', 1)
 
@@ -83,7 +86,7 @@ class Address:
 
     def get_city(self):
         if len(self.addr) != 2:
-            sub_addr = self.tmpAddr[:2]  # 可能缺失,得到下一级地址
+            sub_addr = self.tmpAddr[:2]
 
             cities = self.json_file[self.addr[0]]
             for city in cities:
@@ -119,7 +122,7 @@ class Address:
                         self.addr.append(county)
                         self.tmpAddr = self.cut_string(county, self.tmpAddr)
                         return
-
+        # 待优化,函数最好只有一个出口
         self.addr.append('')
 
     def get_town(self):
@@ -132,6 +135,7 @@ class Address:
                     self.addr.append(town)
                     self.tmpAddr = self.cut_string(town, self.tmpAddr)
                     return
+            self.addr.append('')
         else:
             #res = re.search("(.*?街道)|(.*?[镇乡])", self.tmpAddr)
             res = re.search("(.*?街道)|(.*?[镇乡区])", self.tmpAddr)
