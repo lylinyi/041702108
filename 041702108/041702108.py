@@ -17,7 +17,7 @@ class Address:
         self.name = ""
         self.phoneNum = 0
         self.addr = []
-        self.json_file = json.load(open('041702108/pcas.json', encoding='utf-8'))
+        self.json_file = json.load(open('pcas.json', encoding='utf-8'))
 
         self.parse()
 
@@ -129,15 +129,15 @@ class Address:
         # print(self.tmpAddr)
         if self.addr.count("") is 0:
             sub_addr = self.tmpAddr[:2]
-            towns=self.json_file[self.addr[0]][self.addr[1]][self.addr[2]]
+            towns = self.json_file[self.addr[0]][self.addr[1]][self.addr[2]]
             for town in towns:
-                if town.find(sub_addr)!=-1:
+                if town.find(sub_addr) != -1:
                     self.addr.append(town)
                     self.tmpAddr = self.cut_string(town, self.tmpAddr)
                     return
             self.addr.append('')
         else:
-            #res = re.search("(.*?街道)|(.*?[镇乡])", self.tmpAddr)
+            # res = re.search("(.*?街道)|(.*?[镇乡])", self.tmpAddr)
             res = re.search("(.*?街道)|(.*?[镇乡区])", self.tmpAddr)
             if res is None:
                 self.addr.append('')
@@ -160,7 +160,7 @@ class Address:
     def get_house_num(self):
         # print(self.tmpAddr)
 
-        res = re.search("(.*[号弄])", self.tmpAddr)
+        res = re.search("(.*?[号弄])", self.tmpAddr)
         if res is None:
             self.addr.append('')
         else:
@@ -177,11 +177,14 @@ class Address:
         resp2 = requests.get(url2).json()
         address_info = resp2['regeocode']['addressComponent']
 
-        level_name = ["province", "city", "district", "township", "street", "street_number"]
+        level_name = ["province", "city", "district", "township"]
         for i in range(4):
-            if self.addr[i] == "":
-                if address_info[level_name[i]]:
-                    self.addr[i] = address_info[level_name[i]]
+            self.addr.append(address_info[level_name[i]])
+            self.tmpAddr = self.cut_string(address_info[level_name[i]], self.tmpAddr)
+        self.get_road()
+        self.get_house_num()
+        self.get_detail()
+
         # 处理直辖市
         if self.addr[0][-1] == "市":
             self.addr[1] = self.addr[0]
