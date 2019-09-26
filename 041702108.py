@@ -190,7 +190,7 @@ class Address:
 
 
 def main():
-    a = Address("1!宰伟贵,15899221739吉林长春市南关区长通街道永宁小区7号楼.")
+    a = Address(input())
     a.show_info()
 
 
