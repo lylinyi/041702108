@@ -94,16 +94,18 @@ class Address:
                         self.tmpAddr = self.tmpAddr.replace(city, '', 1)
                     else:
                         self.tmpAddr = self.tmpAddr.replace(city[:-1], '', 1)
+
                     return
             self.addr.append('')
 
     def get_county(self):
         # print(self.tmpAddr)
         sub_addr = self.tmpAddr[:2]
+       
         if self.addr[1] != '':
             counties = self.json_file[self.addr[0]][self.addr[1]]
             for county in counties:
-                if county.find(sub_addr) != -1:
+                if county.find(sub_addr) == 0:
                     self.addr.append(county)
                     self.tmpAddr = self.cut_string(county, self.tmpAddr)
 
@@ -116,20 +118,28 @@ class Address:
                     if county.find(sub_addr) != -1:
                         self.addr.append(county)
                         self.tmpAddr = self.cut_string(county, self.tmpAddr)
-
                         return
 
         self.addr.append('')
 
     def get_town(self):
         # print(self.tmpAddr)
-        res = re.search("(.*?[镇乡])|(.*?街道)", self.tmpAddr)
-
-        if res is None:
-            self.addr.append('')
+        if self.addr.count("") is 0:
+            sub_addr = self.tmpAddr[:2]
+            towns=self.json_file[self.addr[0]][self.addr[1]][self.addr[2]]
+            for town in towns:
+                if town.find(sub_addr)!=-1:
+                    self.addr.append(town)
+                    self.tmpAddr = self.cut_string(town, self.tmpAddr)
+                    return
         else:
-            self.addr.append(res.group(0))
-            self.tmpAddr = self.tmpAddr.replace(res.group(0), '', 1)
+            #res = re.search("(.*?街道)|(.*?[镇乡])", self.tmpAddr)
+            res = re.search("(.*?街道)|(.*?[镇乡区])", self.tmpAddr)
+            if res is None:
+                self.addr.append('')
+            else:
+                self.addr.append(res.group(0))
+                self.tmpAddr = self.tmpAddr.replace(res.group(0), '', 1)
 
     # 可以合并,将正则表达式作为参数传入
     def get_road(self):
@@ -145,6 +155,7 @@ class Address:
 
     def get_house_num(self):
         # print(self.tmpAddr)
+
         res = re.search("(.*[号弄])", self.tmpAddr)
         if res is None:
             self.addr.append('')
