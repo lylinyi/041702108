@@ -101,7 +101,7 @@ class Address:
     def get_county(self):
         # print(self.tmpAddr)
         sub_addr = self.tmpAddr[:2]
-       
+
         if self.addr[1] != '':
             counties = self.json_file[self.addr[0]][self.addr[1]]
             for county in counties:
