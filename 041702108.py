@@ -17,7 +17,7 @@ class Address:
         self.name = ""
         self.phoneNum = 0
         self.addr = []
-        self.json_file = json.load(open('./pcas.json', encoding='utf-8'))
+        self.json_file = json.load(open('pcas.json', encoding='utf-8'))
 
         self.parse()
 
