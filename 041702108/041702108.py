@@ -1,12 +1,6 @@
-"""
-
-
-"""
-
 import requests
 import re
 import json
-
 
 class Address:
     def __init__(self, addr):
@@ -17,7 +11,7 @@ class Address:
         self.name = ""
         self.phoneNum = 0
         self.addr = []
-        self.json_file = json.load(open('041702108/pcas.json', encoding='utf-8'))
+        self.json_file = json.load(open('pcas.json', encoding='utf-8'))
 
         self.parse()
 
@@ -149,7 +143,7 @@ class Address:
     def get_road(self):
         #   测试  .*?[路街巷道里区岛线桥梁]|.*国道|.*省道|.*乡道
         # print(self.tmpAddr)
-        res = re.search("(.*[路巷道街里岛线桥梁])", self.tmpAddr)
+        res = re.search("(.*?[路巷道街里岛线桥梁])", self.tmpAddr)
 
         if res is None:
             self.addr.append('')
@@ -169,6 +163,7 @@ class Address:
 
     def call_api(self):
         # print(self.rawAddr)
+
         url1 = 'https://restapi.amap.com/v3/geocode/geo?address=' + self.rawAddr + '&output=JSON&key=16e93d04ea8f153bf7b4f81042008954'
         resp1 = requests.get(url1).json()
         location = resp1['geocodes'][0]['location']
@@ -203,13 +198,10 @@ class Address:
             "手机": self.phoneNum,
             "地址": self.addr
         }
-
         print(json.dumps(data, ensure_ascii=False))
-
 
 def main():
     a = Address(input())
     a.show_info()
-
 
 main()
