@@ -13,21 +13,17 @@ class Address:
         self.addr = []
         self.json_file = json.load(open('./pcas.json', encoding='utf-8'))
 
-
-
     def get_level(self):
         self.level = int(self.tmpAddr[:1])
         self.tmpAddr = self.tmpAddr[2:]
 
     def get_phone_num(self):
-
         reg = r"\d{11}"
         self.phoneNum = re.search(reg, self.tmpAddr).group()
         self.tmpAddr = self.tmpAddr.replace(self.phoneNum, "")
 
     def get_name(self):
         index = self.tmpAddr.find(',')
-
         self.name = self.tmpAddr[:index]
         self.tmpAddr = self.tmpAddr[index + 1:]
         self.rawAddr = self.tmpAddr
@@ -59,7 +55,7 @@ class Address:
 
         municipality = ["天津", "北京", "重庆", "上海"]
         for province in self.json_file:
-            if province.find(sub_addr) != -1:
+            if province.find(sub_addr) == 0:
                 self.addr.append(province)
                 # 找到全称匹配
                 if self.tmpAddr.find(province) == 0:
@@ -84,7 +80,7 @@ class Address:
 
             cities = self.json_file[self.addr[0]]
             for city in cities:
-                if city.find(sub_addr) != -1:
+                if city.find(sub_addr) == 0:
                     self.addr.append(city)
 
                     if self.tmpAddr.find(city) == 0:
@@ -112,7 +108,7 @@ class Address:
             for city in cities:
                 counties = self.json_file[self.addr[0]][city]
                 for county in counties:
-                    if county.find(sub_addr) != -1:
+                    if county.find(sub_addr) == 0:
                         self.addr.append(county)
                         self.tmpAddr = self.cut_string(county, self.tmpAddr)
                         return
@@ -125,13 +121,14 @@ class Address:
             sub_addr = self.tmpAddr[:2]
             towns = self.json_file[self.addr[0]][self.addr[1]][self.addr[2]]
             for town in towns:
-                if town.find(sub_addr) != -1:
+                if town.find(sub_addr) == 0:
                     self.addr.append(town)
                     self.tmpAddr = self.cut_string(town, self.tmpAddr)
                     return
             self.addr.append('')
         else:
             # res = re.search("(.*?街道)|(.*?[镇乡])", self.tmpAddr)
+            # print(self.tmpAddr)
             res = re.search("(.*?街道)|(.*?[镇乡区])", self.tmpAddr)
             if res is None:
                 self.addr.append('')
