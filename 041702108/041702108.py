@@ -13,7 +13,7 @@ class Address:
         self.addr = []
         self.json_file = json.load(open('041702108/pcas.json', encoding='utf-8'))
 
-        self.parse()
+
 
     def get_level(self):
         self.level = int(self.tmpAddr[:1])
@@ -193,6 +193,7 @@ class Address:
             self.addr = self.addr[:5]
 
     def show_info(self):
+        self.parse()
         data = {
             "姓名": self.name,
             "手机": self.phoneNum,
@@ -200,8 +201,15 @@ class Address:
         }
         print(json.dumps(data, ensure_ascii=False))
 
-def main():
-    a = Address(input())
+def main(str):
+    a = Address(str)
     a.show_info()
 
-main()
+while 1:
+    try:
+        inputraw=input()
+        if(inputraw=="END"):
+            break
+    except EOFError:
+        break
+    main(inputraw)
