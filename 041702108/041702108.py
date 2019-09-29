@@ -12,7 +12,7 @@ class Address:
         self.name = ""
         self.phoneNum = 0
         self.addr = []
-        self.json_file = json.load(open('041702108/pcas.json', encoding='utf-8'))
+        self.json_file = json.load(open('./pcas.json', encoding='utf-8'))
 
     def get_level(self):
         self.level = int(self.tmpAddr[:1])
@@ -177,26 +177,26 @@ class Address:
             address_info["city"] = address_info["province"]
             address_info["province"] = address_info["province"][0:2]
 
-        print(self.tmpAddr)
+        # print(self.tmpAddr)
         address_info["streetNumber"]["street"]=str(address_info["streetNumber"]["street"]).replace("[]","")
 
         for i in range(4):
             self.addr.append(address_info[level_name[i]])
-            print(address_info[level_name[i]])
+            # print(address_info[level_name[i]])
         self.addr.append(address_info["streetNumber"]["street"])
 
         self.tmpAddr = self.tmpAddr.replace(address_info["streetNumber"]["street"], "", 1)
         for i in range(3, -1, -1):
             self.tmpAddr = self.tmpAddr.replace(address_info[level_name[i]], "", 1)
-            print(self.tmpAddr)
+            # print(self.tmpAddr)
 
-        print(address_info["streetNumber"]["street"])
+        # print(address_info["streetNumber"]["street"])
         # 可能误删除第五级地址,待改进
         for i in range(4):
             self.tmpAddr = self.cut_string(address_info[level_name[i]], self.tmpAddr)
         self.tmpAddr = self.cut_string(str(address_info["streetNumber"]["street"]), self.tmpAddr)
 
-        print(self.tmpAddr)
+        # print(self.tmpAddr)
         # self.get_road()
         self.get_house_num()
         self.get_detail()
