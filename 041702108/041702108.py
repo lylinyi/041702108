@@ -2,6 +2,7 @@ import requests
 import re
 import json
 
+
 class Address:
     def __init__(self, addr):
         self.level = 0
@@ -138,9 +139,10 @@ class Address:
 
     # 可以合并,将正则表达式作为参数传入
     def get_road(self):
-        #   测试  .*?[路街巷道里区岛线桥梁]|.*国道|.*省道|.*乡道
+        # .*?[路巷道街里岛线桥梁]
+        #   测试
         # print(self.tmpAddr)
-        res = re.search("(.*?[路巷道街里岛线桥梁])", self.tmpAddr)
+        res = re.search("(.*?[路街巷道里区岛线桥梁]|.*国道|.*省道|.*乡道|.*胡同)", self.tmpAddr)
 
         if res is None:
             self.addr.append('')
@@ -151,7 +153,7 @@ class Address:
     def get_house_num(self):
         # print(self.tmpAddr)
 
-        res = re.search("(.*?[号弄])", self.tmpAddr)
+        res = re.search("(.*?\d[号弄])", self.tmpAddr)
         if res is None:
             self.addr.append('')
         else:
@@ -165,22 +167,44 @@ class Address:
         resp1 = requests.get(url1).json()
         location = resp1['geocodes'][0]['location']
 
-        url2 = 'https://restapi.amap.com/v3/geocode/regeo?output=JSON&location=' + location + '&key=16e93d04ea8f153bf7b4f81042008954&radius=5&extensions=all'
+        url2 = 'https://restapi.amap.com/v3/geocode/regeo?output=JSON&location=' + location + '&key=16e93d04ea8f153bf7b4f81042008954&radius=1000&extensions=all'
         resp2 = requests.get(url2).json()
         address_info = resp2['regeocode']['addressComponent']
 
         level_name = ["province", "city", "district", "township"]
+        # 处理 直辖市
+        if address_info["province"][-1] == '市':
+            address_info["city"] = address_info["province"]
+            address_info["province"] = address_info["province"][0:2]
+
+        print(self.tmpAddr)
+        address_info["streetNumber"]["street"]=str(address_info["streetNumber"]["street"]).replace("[]","")
+
         for i in range(4):
             self.addr.append(address_info[level_name[i]])
+            print(address_info[level_name[i]])
+        self.addr.append(address_info["streetNumber"]["street"])
+
+        self.tmpAddr = self.tmpAddr.replace(address_info["streetNumber"]["street"], "", 1)
+        for i in range(3, -1, -1):
+            self.tmpAddr = self.tmpAddr.replace(address_info[level_name[i]], "", 1)
+            print(self.tmpAddr)
+
+        print(address_info["streetNumber"]["street"])
+        # 可能误删除第五级地址,待改进
+        for i in range(4):
             self.tmpAddr = self.cut_string(address_info[level_name[i]], self.tmpAddr)
-        self.get_road()
+        self.tmpAddr = self.cut_string(str(address_info["streetNumber"]["street"]), self.tmpAddr)
+
+        print(self.tmpAddr)
+        # self.get_road()
         self.get_house_num()
         self.get_detail()
 
         # 处理直辖市
-        if self.addr[0][-1] == "市":
-            self.addr[1] = self.addr[0]
-            self.addr[0] = self.addr[0][0:2]
+        # if self.addr[0][-1] == "市":
+        #     self.addr[1] = self.addr[0]
+        #     self.addr[0] = self.addr[0][0:2]
 
     def get_detail(self):
         # print(self.tmpAddr)
@@ -198,15 +222,10 @@ class Address:
         }
         print(json.dumps(data, ensure_ascii=False))
 
-def main(str):
-    a = Address(str)
+
+def main():
+    a = Address(input())
     a.show_info()
 
-while 1:
-    try:
-        inputraw=input()
-        if(inputraw=="END"):
-            break
-    except EOFError:
-        break
-    main(inputraw)
+
+main()
